@@ -1,0 +1,6 @@
+{
+  "name": "千岛",
+  "description": "夏日跳跳乐 - 适配 375×812 移动端的清凉水上跳跃游戏，踩踏浮板避开红色陷阱方块。",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
