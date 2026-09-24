@@ -9,24 +9,35 @@ import {
   Item,
   PlatformType,
   PlatformStyle,
+  PlatformGarnish,
   MonsterType,
 } from './types';
 import { sound } from './audio';
 
-export function getRandomPlatformStyle(): PlatformStyle {
+export function getRandomPlatformGarnish(): PlatformGarnish {
   const r = Math.random();
-  // 冰块占六成 (60%)
-  if (r < 0.60) {
-    return 'ice';
-  }
-  // 其余样式占四成 (40%)：充气泳圈、鲜黄柠檬、清爽青柠
-  const otherR = (r - 0.60) / 0.40;
-  if (otherR < 0.35) {
-    return 'swimring'; // 充气游泳圈
-  } else if (otherR < 0.68) {
-    return 'lemon';    // 鲜黄柠檬切片
+  if (r < 0.28) return 'lime_mint_left';
+  if (r < 0.52) return 'lemon_right';
+  if (r < 0.70) return 'lemon_left';
+  if (r < 0.85) return 'lime_mint_right';
+  if (r < 0.93) return 'double_lemon';
+  return 'none';
+}
+
+export function getRandomPlatformStyle(width?: number): PlatformStyle {
+  const w = width ?? 75;
+  const rand = Math.random();
+
+  // 60% Main Platform Style: Halved Cucumber Boat from Image 1 ("以主力为主，占六成")
+  // 40% Other Platform Styles: Cucumber Trio, Cucumber Double, Cucumber Single ("其他样式的方块占四成")
+  if (rand < 0.60) {
+    return 'cucumber_long';
+  } else if (rand < 0.78) {
+    return w >= 70 ? 'cucumber_trio' : 'cucumber_double';
+  } else if (rand < 0.92) {
+    return 'cucumber_double';
   } else {
-    return 'lime';     // 清爽青柠切片
+    return 'cucumber_single';
   }
 }
 
@@ -87,21 +98,22 @@ export function initGame(): GameStateData {
   // Starting platform right underneath player
   platforms.push({
     id: 1,
-    x: GAME_WIDTH / 2 - 35,
+    x: GAME_WIDTH / 2 - 40,
     y: GAME_HEIGHT - 90,
-    width: 70,
-    height: 14,
+    width: 80,
+    height: 18,
     type: 'standard',
-    style: 'ice',
+    style: 'cucumber_long',
+    garnish: 'lemon_right',
   });
 
-  // Generate first batch of platforms
+  // Generate first batch of platforms (matching Image 1 varied lengths)
   let currentY = GAME_HEIGHT - 90;
   let idCounter = 2;
 
   while (currentY > 0) {
-    currentY -= Math.floor(Math.random() * 35 + 50);
-    const pWidth = Math.floor(Math.random() * 15 + 60);
+    currentY -= Math.floor(Math.random() * 30 + 52);
+    const pWidth = Math.floor(Math.random() * 45 + 68);
     const pX = Math.random() * (GAME_WIDTH - pWidth - 30) + 15;
 
     platforms.push({
@@ -109,9 +121,10 @@ export function initGame(): GameStateData {
       x: pX,
       y: currentY,
       width: pWidth,
-      height: 14,
+      height: 18,
       type: 'standard',
-      style: getRandomPlatformStyle(),
+      style: getRandomPlatformStyle(pWidth),
+      garnish: getRandomPlatformGarnish(),
     });
   }
 
@@ -701,7 +714,7 @@ function generatePlatforms(state: GameStateData) {
   while (currentY > -120) {
     currentY -= Math.floor(Math.random() * (maxGap - minGap) + minGap);
 
-    const pWidth = Math.max(50, Math.floor(68 - difficulty * 14));
+    const pWidth = Math.max(58, Math.floor(Math.random() * 45 + (75 - difficulty * 14)));
     const pX = Math.random() * (GAME_WIDTH - pWidth - 30) + 15;
 
     // Platform type probability (including red trap blocks)
@@ -784,9 +797,10 @@ function generatePlatforms(state: GameStateData) {
       x: pX,
       y: currentY,
       width: pWidth,
-      height: 14,
+      height: 18,
       type,
-      style: type === 'standard' ? getRandomPlatformStyle() : (type === 'fragile' ? 'ice' : undefined),
+      style: type === 'standard' ? 'blue_dock' : (type === 'fragile' ? 'ice' : undefined),
+      garnish: type === 'standard' ? getRandomPlatformGarnish() : undefined,
       vx,
       minX,
       maxX,
@@ -805,9 +819,10 @@ function generatePlatforms(state: GameStateData) {
         x: safeX,
         y: currentY - Math.floor(Math.random() * 16 - 8),
         width: pWidth,
-        height: 14,
+        height: 18,
         type: 'standard',
-        style: getRandomPlatformStyle(),
+        style: 'blue_dock',
+        garnish: getRandomPlatformGarnish(),
       });
     }
 

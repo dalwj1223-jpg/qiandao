@@ -1,8 +1,13 @@
 import { Player } from '../types';
 
 /**
- * Renders the lavender ribbon character from video13 with exact squash-and-stretch
- * jump animations, `>.<` squishing face, and power-up accessories.
+ * Renders the custom mascot character from the user's uploaded image:
+ * - Soft dimensional lilac round body with lowercase 'a' running/walking legs
+ * - Jaunty dark purple floppy adventurer hat/fedora tilted on the top-left
+ * - Expressive face with signature winking left eye, glossy round right eye, and sweet smile
+ * - Distinctive soft white circular belly spot in center
+ * - Cute black cartoon stick arms: left down-left, right raised waving cheerfully
+ * - Smooth squash-and-stretch physics, bounciness, and power-up overlays
  */
 export function drawRibbonCharacter(
   ctx: CanvasRenderingContext2D,
@@ -58,210 +63,293 @@ export function drawRibbonCharacter(
     drawRocketBackpack(ctx, timeMs);
   }
 
-  // Base dimensions of the character body
-  const baseW = 44;
-  const baseH = 50;
-
-  // 1. Draw Lower Ribbon Crossed Knot / Feet (from video13)
-  // Two layered overlapping ribbon bands at the bottom
+  // 1. Back Left Leg (chubby step-back foot)
   ctx.save();
-  // Bottom left loop / fold
   ctx.beginPath();
-  ctx.ellipse(-10, 14, 13, 8, -Math.PI / 12, 0, Math.PI * 2);
-  ctx.fillStyle = '#8367D8'; // Deep shadow purple
-  ctx.fill();
-
-  // Bottom right loop / fold
-  ctx.beginPath();
-  ctx.ellipse(10, 14, 13, 8, Math.PI / 12, 0, Math.PI * 2);
-  ctx.fillStyle = '#8D72E1';
-  ctx.fill();
-
-  // Front crossing ribbon knot
-  ctx.beginPath();
-  ctx.moveTo(-16, 12);
-  ctx.bezierCurveTo(-14, 24, 14, 24, 16, 12);
-  ctx.bezierCurveTo(14, 18, -14, 18, -16, 12);
-  ctx.fillStyle = '#A38CF2';
+  ctx.moveTo(-6, 8);
+  ctx.quadraticCurveTo(-14, 12, -15, 18);
+  ctx.quadraticCurveTo(-15, 23.5, -9, 23.5);
+  ctx.quadraticCurveTo(-4, 23.5, -3, 17);
+  ctx.quadraticCurveTo(-2, 11, -6, 8);
+  ctx.closePath();
+  // Slightly deeper shadow purple for back leg
+  const backLegGrad = ctx.createLinearGradient(-15, 10, -4, 24);
+  backLegGrad.addColorStop(0, '#866FE0');
+  backLegGrad.addColorStop(1, '#7259D3');
+  ctx.fillStyle = backLegGrad;
   ctx.fill();
   ctx.restore();
 
-  // 2. Draw Main Upper Ribbon Loop (The "8" body)
+  // 2. Left Cartoon Stick Arm (angled down-left)
   ctx.save();
-  // Outer silhouette
+  ctx.strokeStyle = '#1E1A29';
+  ctx.lineWidth = 3.2;
+  ctx.lineCap = 'round';
   ctx.beginPath();
-  // Top rounded dome
-  ctx.moveTo(-baseW / 2 + 5, -8);
-  ctx.bezierCurveTo(-baseW / 2 + 3, -baseH / 2, baseW / 2 - 3, -baseH / 2, baseW / 2 - 5, -8);
-  // Waist pinch
-  ctx.bezierCurveTo(baseW / 2, 4, baseW / 2 + 2, 14, baseW / 2 - 8, 20);
-  // Bottom curve
-  ctx.bezierCurveTo(0, 24, 0, 24, -baseW / 2 + 8, 20);
-  // Left waist pinch
-  ctx.bezierCurveTo(-baseW / 2 - 2, 14, -baseW / 2, 4, -baseW / 2 + 5, -8);
-  ctx.closePath();
+  if (isSquashing) {
+    // Arm flexes slightly outward on impact
+    ctx.moveTo(-14, 0);
+    ctx.quadraticCurveTo(-19, 4, -23, 3);
+  } else {
+    const armFlutter = Math.sin(timeMs * 0.012) * 1.5;
+    ctx.moveTo(-14.5, 0);
+    ctx.quadraticCurveTo(-18, 3 + armFlutter, -22.5, 7 + armFlutter);
+  }
+  ctx.stroke();
+  ctx.restore();
 
-  // Gradient fill for soft dimensional lilac volume
-  const bodyGrad = ctx.createLinearGradient(0, -baseH / 2, 0, baseH / 2);
-  bodyGrad.addColorStop(0, '#B7A2F8'); // lighter highlight top
-  bodyGrad.addColorStop(0.5, '#9C84E8'); // signature lavender
-  bodyGrad.addColorStop(1, '#8165D6'); // shadowed base
+  // 3. Main Round Lilac Torso & Head
+  ctx.save();
+  ctx.beginPath();
+  // Round plump body
+  ctx.arc(0, -3, 17.5, 0, Math.PI * 2);
+  // Rich 3D gradient matching user image
+  const bodyGrad = ctx.createRadialGradient(-5, -8, 2, 0, -3, 18);
+  bodyGrad.addColorStop(0, '#BDB1FF');   // Soft highlight
+  bodyGrad.addColorStop(0.4, '#9D88F8'); // Vibrant lilac midtone
+  bodyGrad.addColorStop(0.85, '#856DE4');// Deeper purple
+  bodyGrad.addColorStop(1, '#745CD8');   // Ambient crease
   ctx.fillStyle = bodyGrad;
   ctx.fill();
+  ctx.restore();
 
-  // 3. Center Cutout (The hollow "8" eyelet / hole from video13)
+  // 4. Front "a" Lower Body Loop & Right Foot (chubby forward-stepping curl)
+  ctx.save();
   ctx.beginPath();
-  const holeRadiusX = isSquashing ? 6.5 : 5.5;
-  const holeRadiusY = isSquashing ? 5 : 7;
-  ctx.ellipse(0, isSquashing ? 7 : 8, holeRadiusX, holeRadiusY, 0, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(2, 132, 199, 0.4)'; // Clear translucent summer pool water hue
+  // Sweeps from lower torso across the front into the forward foot
+  ctx.moveTo(-5, 9);
+  ctx.bezierCurveTo(0, 14, 7, 13, 11, 16);
+  ctx.bezierCurveTo(15, 18.5, 16, 23.5, 10, 23.5);
+  ctx.bezierCurveTo(4, 23.5, 1, 20, 0, 16);
+  ctx.bezierCurveTo(-1, 13, -3, 11, -5, 9);
+  ctx.closePath();
+  const frontLegGrad = ctx.createLinearGradient(0, 10, 15, 24);
+  frontLegGrad.addColorStop(0, '#A490FA'); // Highlight top edge of 'a' loop
+  frontLegGrad.addColorStop(0.6, '#937EF4');
+  frontLegGrad.addColorStop(1, '#7C64DB');
+  ctx.fillStyle = frontLegGrad;
   ctx.fill();
-  // Inner ring shadow for depth
-  ctx.lineWidth = 1.5;
-  ctx.strokeStyle = '#7558CA';
+
+  // Subtle crease separation shadow between 'a' loop and back leg
+  ctx.beginPath();
+  ctx.moveTo(-5, 10);
+  ctx.quadraticCurveTo(0, 13, 3, 15);
+  ctx.strokeStyle = 'rgba(80, 55, 155, 0.35)';
+  ctx.lineWidth = 1.2;
   ctx.stroke();
+  ctx.restore();
 
-  // Subtle ribbon fold highlight stripe across the head
+  // 5. White Circular Belly Button / Disc (signature feature from user's image)
+  ctx.save();
   ctx.beginPath();
-  ctx.ellipse(-6, -15, 8, 4, -Math.PI / 8, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.28)';
+  const bellyY = isSquashing ? 5.5 : 4.5;
+  const bellyRx = isSquashing ? 6.2 : 5.4;
+  const bellyRy = isSquashing ? 4.6 : 5.4;
+  ctx.ellipse(0.5, bellyY, bellyRx, bellyRy, 0, 0, Math.PI * 2);
+  const bellyGrad = ctx.createLinearGradient(0.5, bellyY - bellyRy, 0.5, bellyY + bellyRy);
+  bellyGrad.addColorStop(0, '#FFFFFF');
+  bellyGrad.addColorStop(0.7, '#F3F1FF');
+  bellyGrad.addColorStop(1, '#E4E0FA');
+  ctx.fillStyle = bellyGrad;
   ctx.fill();
-
+  ctx.strokeStyle = 'rgba(160, 145, 235, 0.4)';
+  ctx.lineWidth = 0.8;
+  ctx.stroke();
   ctx.restore();
 
-  // 4. Arms / Flippers (Black little wings from video13)
+  // 6. Right Cartoon Stick Arm (raised up-right, waving cheerfully)
   ctx.save();
-  ctx.fillStyle = '#181A24';
-  const armW = 9;
-  const armH = 5;
-
-  if (isSquashing) {
-    // When squashing: arms point slightly up and out (video13 frame 00:01)
-    // Left arm
-    ctx.save();
-    ctx.translate(-22, 2);
-    ctx.rotate(-0.5);
-    ctx.beginPath();
-    ctx.ellipse(0, 0, armW, armH, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-
-    // Right arm
-    ctx.save();
-    ctx.translate(22, 2);
-    ctx.rotate(0.5);
-    ctx.beginPath();
-    ctx.ellipse(0, 0, armW, armH, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-  } else {
-    // Floating / jumping: subtle flap
-    const flap = Math.sin(timeMs * 0.015) * 0.25;
-    // Left arm
-    ctx.save();
-    ctx.translate(-21, 0);
-    ctx.rotate(0.2 + flap);
-    ctx.beginPath();
-    ctx.ellipse(0, 0, armW, armH, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-
-    // Right arm
-    ctx.save();
-    ctx.translate(21, 0);
-    ctx.rotate(-0.2 - flap);
-    ctx.beginPath();
-    ctx.ellipse(0, 0, armW, armH, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-  }
+  ctx.strokeStyle = '#1E1A29';
+  ctx.lineWidth = 3.2;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  // Waving oscillation
+  const wave = isSquashing ? 0 : Math.sin(timeMs * 0.01) * 2.2;
+  ctx.moveTo(14.5, -1);
+  ctx.quadraticCurveTo(19, -6 + wave * 0.5, 22.5, -12 + wave);
+  ctx.stroke();
   ctx.restore();
 
-  // 5. Face (Eyes, Beak, and Mouth)
+  // 7. Face: Winking Left Eye, Glossy Right Eye, Cute Smile & Cheeks
   ctx.save();
   if (isSquashing) {
-    // Energetic, happy bounce eyes `^ . ^`
-    ctx.strokeStyle = '#181A24';
+    // Squeezed super-happy expression on bounce `> ᴗ <`
+    ctx.strokeStyle = '#1E1A29';
     ctx.lineWidth = 2.4;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
 
-    // Left curved eye
+    // Left squeezed eye `>`
     ctx.beginPath();
-    ctx.moveTo(-10, -5);
-    ctx.quadraticCurveTo(-7.5, -9, -5, -5);
+    ctx.moveTo(-8, -10);
+    ctx.lineTo(-4, -8.5);
+    ctx.lineTo(-8, -7);
     ctx.stroke();
 
-    // Right curved eye
+    // Right squeezed eye `<`
     ctx.beginPath();
-    ctx.moveTo(5, -5);
-    ctx.quadraticCurveTo(7.5, -9, 10, -5);
+    ctx.moveTo(8, -10);
+    ctx.lineTo(4, -8.5);
+    ctx.lineTo(8, -7);
     ctx.stroke();
 
-    // Tiny beak / mouth
+    // Tiny smiling open mouth
     ctx.beginPath();
-    ctx.arc(0, -3.5, 1.8, 0, Math.PI * 2);
-    ctx.fillStyle = '#181A24';
+    ctx.arc(0, -3.5, 2.2, 0, Math.PI);
+    ctx.fillStyle = '#1E1A29';
     ctx.fill();
 
-    // Cheerful blush dots
+    // Rosy bounce blush
     ctx.beginPath();
-    ctx.arc(-13, -2, 2.8, 0, Math.PI * 2);
-    ctx.arc(13, -2, 2.8, 0, Math.PI * 2);
+    ctx.arc(-11, -3.5, 2.8, 0, Math.PI * 2);
+    ctx.arc(11, -3.5, 2.8, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(255, 120, 160, 0.55)';
     ctx.fill();
   } else {
-    // Normal / Jumping cute face:
-    // Two glossy black oval eyes with white highlight
-    const eyeY = -7;
-    const eyeSpacing = 7.5;
-    const eyeR = 3.5;
-
-    // Left eye
+    // Normal signature expression from user's image:
+    // A. Left Eye: Playful Wink (😉)
+    ctx.save();
+    ctx.strokeStyle = '#1E1A29';
+    ctx.lineWidth = 2.2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
     ctx.beginPath();
-    ctx.arc(-eyeSpacing, eyeY, eyeR, 0, Math.PI * 2);
-    ctx.fillStyle = '#181A24';
+    // Arched winking curve with slight cute flick
+    ctx.moveTo(-7.5, -8.8);
+    ctx.quadraticCurveTo(-4.8, -7.2, -2.0, -9.2);
+    ctx.stroke();
+    // Little upper crease flick for wink personality
+    ctx.beginPath();
+    ctx.moveTo(-6.8, -10.2);
+    ctx.lineTo(-5.2, -9.6);
+    ctx.stroke();
+    ctx.restore();
+
+    // B. Right Eye: Big Glossy Round Cartoon Eye
+    const eyeX = 5.2;
+    const eyeY = -8.6;
+    const eyeR = 3.6;
+
+    // Subtle pale rim so eye pops clearly
+    ctx.beginPath();
+    ctx.arc(eyeX, eyeY, eyeR + 0.6, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
     ctx.fill();
 
-    // White pupil highlight
+    // Deep black pupil
     ctx.beginPath();
-    ctx.arc(-eyeSpacing + 1.2, eyeY - 1.2, 1.4, 0, Math.PI * 2);
+    ctx.arc(eyeX, eyeY, eyeR, 0, Math.PI * 2);
+    ctx.fillStyle = '#1E1A29';
+    ctx.fill();
+
+    // Big crisp white reflection highlight at upper-right
+    ctx.beginPath();
+    ctx.arc(eyeX + 1.2, eyeY - 1.2, 1.4, 0, Math.PI * 2);
     ctx.fillStyle = '#FFFFFF';
     ctx.fill();
 
-    // Right eye
+    // Tiny secondary specular twinkle at lower-left
     ctx.beginPath();
-    ctx.arc(eyeSpacing, eyeY, eyeR, 0, Math.PI * 2);
-    ctx.fillStyle = '#181A24';
-    ctx.fill();
-
-    // White pupil highlight
-    ctx.beginPath();
-    ctx.arc(eyeSpacing + 1.2, eyeY - 1.2, 1.4, 0, Math.PI * 2);
+    ctx.arc(eyeX - 1.2, eyeY + 1.2, 0.6, 0, Math.PI * 2);
     ctx.fillStyle = '#FFFFFF';
     ctx.fill();
 
-    // Tiny black beak/nose between eyes (video13)
+    // C. Cute Tiny Smile
+    ctx.save();
+    ctx.strokeStyle = '#1E1A29';
+    ctx.lineWidth = 1.8;
+    ctx.lineCap = 'round';
     ctx.beginPath();
-    ctx.arc(0, eyeY + 1.5, 1.6, 0, Math.PI * 2);
-    ctx.fillStyle = '#181A24';
-    ctx.fill();
+    ctx.arc(0.5, -4.0, 2.0, 0.2 * Math.PI, 0.8 * Math.PI);
+    ctx.stroke();
+    ctx.restore();
 
-    // Soft cheek blushes
+    // D. Soft Rosy Cheeks
     ctx.beginPath();
-    ctx.arc(-12, eyeY + 4.5, 2.5, 0, Math.PI * 2);
-    ctx.arc(12, eyeY + 4.5, 2.5, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(240, 140, 180, 0.35)';
+    ctx.arc(-10.5, -4.5, 2.5, 0, Math.PI * 2);
+    ctx.arc(11, -4.5, 2.5, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255, 130, 165, 0.32)';
     ctx.fill();
   }
   ctx.restore();
 
-  // 6. Power-up Overlays: Propeller Hat
+  // 8. Jaunty Dark Purple Floppy Adventurer Hat / Fedora (tilted on top-left of head)
+  ctx.save();
+  // Hat is tilted jauntily over the top-left of the head
+  ctx.translate(-4, -16);
+  ctx.rotate(-0.20); // ~ -11.5 degrees tilt
+
+  // A. Hat Cast Shadow on Head
+  ctx.beginPath();
+  ctx.ellipse(1, 4.5, 15, 3.5, 0, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(35, 20, 65, 0.38)';
+  ctx.fill();
+
+  // B. Floppy Brim (wide, wavy curved brim from user's image)
+  ctx.beginPath();
+  // Wavy floppy brim profile
+  ctx.moveTo(-18, 0);
+  ctx.bezierCurveTo(-17, -4, 15, -4, 17, 0);
+  ctx.bezierCurveTo(16, 5, -16, 5, -18, 0);
+  ctx.closePath();
+  const brimGrad = ctx.createLinearGradient(-18, -4, 17, 5);
+  brimGrad.addColorStop(0, '#6D5CA8');
+  brimGrad.addColorStop(0.5, '#58478E');
+  brimGrad.addColorStop(1, '#47367B');
+  ctx.fillStyle = brimGrad;
+  ctx.fill();
+  ctx.strokeStyle = '#433374';
+  ctx.lineWidth = 0.8;
+  ctx.stroke();
+
+  // Subtle highlight rim along upper brim edge
+  ctx.beginPath();
+  ctx.moveTo(-16, -1);
+  ctx.quadraticCurveTo(0, -3.2, 14, -1);
+  ctx.strokeStyle = 'rgba(175, 160, 235, 0.45)';
+  ctx.lineWidth = 0.9;
+  ctx.stroke();
+
+  // C. Hat Crown (rounded dome sitting on top of brim)
+  ctx.beginPath();
+  ctx.moveTo(-10, 0);
+  ctx.bezierCurveTo(-11, -7, -8, -12.5, -1, -13);
+  ctx.bezierCurveTo(6, -13.5, 10, -7, 9, 0);
+  ctx.closePath();
+  const crownGrad = ctx.createLinearGradient(-10, -13, 9, 0);
+  crownGrad.addColorStop(0, '#7563B3'); // highlight at apex
+  crownGrad.addColorStop(0.5, '#5E4D95');
+  crownGrad.addColorStop(1, '#4A397F'); // shadow base
+  ctx.fillStyle = crownGrad;
+  ctx.fill();
+  ctx.strokeStyle = '#3E2E72';
+  ctx.lineWidth = 0.8;
+  ctx.stroke();
+
+  // D. Dark Ribbon Hatband around base of crown
+  ctx.beginPath();
+  ctx.moveTo(-10, -0.5);
+  ctx.quadraticCurveTo(0, -1.8, 9, -0.5);
+  ctx.strokeStyle = '#322363';
+  ctx.lineWidth = 2.2;
+  ctx.stroke();
+
+  // Crown soft indentation crease (fedora pinch)
+  ctx.beginPath();
+  ctx.moveTo(-2, -12);
+  ctx.quadraticCurveTo(0, -9.5, 2, -12);
+  ctx.strokeStyle = 'rgba(50, 35, 95, 0.4)';
+  ctx.lineWidth = 1.0;
+  ctx.stroke();
+
+  ctx.restore();
+
+  // 9. Power-up Overlays: Propeller Hat
   if (player.powerUp && player.powerUp.type === 'propeller') {
     drawPropellerHat(ctx, timeMs);
   }
 
-  // 7. Shield Bubble
+  // 10. Shield Bubble
   if (player.hasShield) {
     drawShieldBubble(ctx, timeMs);
   }
@@ -274,11 +362,11 @@ export function drawRibbonCharacter(
  */
 function drawPropellerHat(ctx: CanvasRenderingContext2D, timeMs: number) {
   ctx.save();
-  ctx.translate(0, -25);
+  ctx.translate(-5, -29);
 
   // Beanie cap
   ctx.beginPath();
-  ctx.arc(0, 0, 10, Math.PI, 0, false);
+  ctx.arc(0, 0, 9, Math.PI, 0, false);
   ctx.fillStyle = '#00B4D8';
   ctx.fill();
   ctx.lineWidth = 1.5;

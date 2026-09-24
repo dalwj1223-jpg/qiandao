@@ -238,19 +238,30 @@ export const DoodleGame: React.FC = () => {
           aspectRatio: '375 / 812',
         }}
       >
-        {/* Top Header: Summer Badge & Status Buttons */}
-        <div className="absolute top-3.5 left-3.5 right-3.5 z-20 flex items-center justify-between pointer-events-none">
-          {/* Summer Theme Badge */}
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/85 backdrop-blur-md shadow-md border border-white/60">
-            <span className="text-sm">🛟</span>
-            <span className="text-[11px] font-black tracking-wide text-sky-800">
-              千岛 · 夏日跳跳乐
-            </span>
-            <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping" />
+        {/* Top Status Bar (Image 1 Mobile UI: 9:41 & Signal/Battery) */}
+        <div className="absolute top-2 left-4 right-4 z-20 flex items-center justify-between text-[12px] font-bold text-slate-900/80 pointer-events-none select-none">
+          <span>9:41</span>
+          <div className="flex items-center gap-1.5 text-[11px]">
+            <span>􀙇</span>
+            <span>􀀂</span>
+            <div className="w-5 h-2.5 rounded-[3px] border border-slate-900/80 p-[1px] flex items-center">
+              <div className="w-3.5 h-full bg-slate-900/80 rounded-[1px]" />
+            </div>
           </div>
+        </div>
 
-          {/* Sound & Pause & Rules Control Spheres */}
-          <div className="flex items-center gap-1.5 pointer-events-auto">
+        {/* Top Controls: Pause, Rules, Sound (Image 1 Frosted Circular Buttons) */}
+        <div className="absolute top-8 left-3.5 right-3.5 z-20 flex items-center justify-between pointer-events-none">
+          {/* Left Controls: Pause & Rules */}
+          <div className="flex items-center gap-2 pointer-events-auto">
+            <button
+              id="toggle-pause-btn"
+              onClick={handleTogglePause}
+              className="w-9 h-9 rounded-full bg-slate-900/40 hover:bg-slate-900/55 text-white flex items-center justify-center shadow-md border border-white/30 backdrop-blur-md transition cursor-pointer active:scale-90"
+              title={isPaused ? '继续' : '暂停'}
+            >
+              {isPaused ? <Play className="w-4 h-4 text-emerald-400 fill-emerald-400" /> : <Pause className="w-4 h-4 text-white fill-white" />}
+            </button>
             <button
               id="top-rules-btn"
               onClick={() => {
@@ -259,41 +270,40 @@ export const DoodleGame: React.FC = () => {
                 }
                 setShowRules(true);
               }}
-              className="w-8 h-8 rounded-full bg-white/85 hover:bg-white text-sky-800 flex items-center justify-center shadow-md border border-white/70 transition cursor-pointer backdrop-blur-md active:scale-95"
+              className="w-9 h-9 rounded-full bg-slate-900/40 hover:bg-slate-900/55 text-white flex items-center justify-center shadow-md border border-white/30 backdrop-blur-md transition cursor-pointer active:scale-90"
               title="查看玩法规则"
             >
-              <BookOpen className="w-4 h-4 text-sky-700" />
+              <BookOpen className="w-4 h-4 text-white" />
             </button>
+          </div>
+
+          {/* Right Controls: Sound & More */}
+          <div className="flex items-center gap-2 pointer-events-auto">
             <button
               id="toggle-sound-btn"
               onClick={handleToggleMute}
-              className="w-8 h-8 rounded-full bg-white/85 hover:bg-white text-sky-800 flex items-center justify-center shadow-md border border-white/70 transition cursor-pointer backdrop-blur-md active:scale-95"
+              className="w-9 h-9 rounded-full bg-slate-900/40 hover:bg-slate-900/55 text-white flex items-center justify-center shadow-md border border-white/30 backdrop-blur-md transition cursor-pointer active:scale-90"
               title={isMuted ? '开启声音' : '静音'}
             >
-              {isMuted ? <VolumeX className="w-4 h-4 text-rose-500" /> : <Volume2 className="w-4 h-4" />}
+              {isMuted ? <VolumeX className="w-4 h-4 text-rose-400" /> : <Volume2 className="w-4 h-4 text-white" />}
             </button>
-            <button
-              id="toggle-pause-btn"
-              onClick={handleTogglePause}
-              className="w-8 h-8 rounded-full bg-white/85 hover:bg-white text-sky-800 flex items-center justify-center shadow-md border border-white/70 transition cursor-pointer backdrop-blur-md active:scale-95"
-              title={isPaused ? '继续' : '暂停'}
-            >
-              {isPaused ? <Play className="w-4 h-4 text-emerald-600" /> : <Pause className="w-4 h-4" />}
-            </button>
+            <div className="w-9 h-9 rounded-full bg-slate-900/40 text-white flex items-center justify-center shadow-md border border-white/30 backdrop-blur-md font-bold tracking-widest text-xs">
+              •••
+            </div>
           </div>
         </div>
 
-        {/* Big 3D Summer Score Counter with Star Glow (Image 1 Style) */}
-        <div className="absolute top-14 left-3.5 z-20 pointer-events-none">
-          <div className="flex items-baseline gap-1">
-            <span className="text-3xl font-black font-mono tracking-tight text-white drop-shadow-[0_2px_8px_rgba(2,132,199,0.9)]">
+        {/* Height Score in Exact Image 1 Position (Top-Right under sound button: 0米) */}
+        <div className="absolute top-20 right-4 z-20 pointer-events-none flex flex-col items-end">
+          <div className="flex items-baseline gap-0.5">
+            <span className="text-3xl font-black tracking-tight text-slate-950 drop-shadow-[0_1px_3px_rgba(255,255,255,0.9)]">
               {score}
             </span>
-            <span className="text-xs font-bold text-amber-300 drop-shadow">米</span>
+            <span className="text-sm font-black text-slate-900 drop-shadow-[0_1px_2px_rgba(255,255,255,0.9)]">米</span>
           </div>
-          <div className="flex items-center gap-1 text-[11px] font-bold text-amber-200 bg-sky-950/40 px-2 py-0.5 rounded-full backdrop-blur-sm border border-amber-300/30 w-fit mt-0.5">
-            <Trophy className="w-3 h-3 text-amber-400" />
-            <span>最高: {highScore}</span>
+          <div className="flex items-center gap-1 text-[10px] font-bold text-sky-950 bg-white/70 px-2 py-0.5 rounded-full shadow-xs border border-white/80 backdrop-blur-xs mt-0.5">
+            <Trophy className="w-2.5 h-2.5 text-amber-500" />
+            <span>最高: {highScore}米</span>
           </div>
         </div>
 
@@ -400,47 +410,44 @@ export const DoodleGame: React.FC = () => {
 
               {/* Exact content from user's image */}
               <div className="space-y-3 text-[11px] text-sky-950">
-                {/* 1. Summer Platform Styles */}
+                {/* 1. Summer Platform Styles (Image 1 Theme) */}
                 <div>
                   <div className="font-bold text-xs text-sky-800 mb-1.5 flex items-center justify-between">
                     <div className="flex items-center gap-1">
-                      <span>🧊</span>
-                      <span>夏日特色跳板</span>
+                      <span>🫧</span>
+                      <span>图一特色水上浮台</span>
                     </div>
                     <span className="text-[10px] font-semibold text-sky-600 bg-sky-100/80 px-2 py-0.5 rounded-full">
-                      冰块占60% · 其他占40%
+                      清凉水乐园拼装浮台
                     </span>
                   </div>
                   <div className="grid grid-cols-2 gap-1.5">
                     <div className="bg-sky-50/90 p-2 rounded-xl border border-sky-200/80 flex items-center gap-1.5 ring-1 ring-sky-300/60">
-                      <span className="text-lg">🧊</span>
+                      <span className="text-lg">🌊</span>
                       <div>
-                        <div className="font-bold text-sky-950 text-[11px] flex items-center gap-1">
-                          <span>晶莹冰块</span>
-                          <span className="text-[9px] bg-sky-200/80 text-sky-800 font-bold px-1 rounded">60%</span>
-                        </div>
-                        <div className="text-[10px] text-sky-700 font-medium">清凉主力跳板</div>
-                      </div>
-                    </div>
-                    <div className="bg-rose-50/90 p-2 rounded-xl border border-rose-100 flex items-center gap-1.5">
-                      <span className="text-base">🛟</span>
-                      <div>
-                        <div className="font-bold text-rose-900 text-[11px]">充气泳圈</div>
-                        <div className="text-[10px] text-rose-700">条纹浮力泳圈</div>
+                        <div className="font-bold text-sky-950 text-[11px]">蓝色模块浮台</div>
+                        <div className="text-[10px] text-sky-700 font-medium">图一经典拼装跳板</div>
                       </div>
                     </div>
                     <div className="bg-amber-50/90 p-2 rounded-xl border border-amber-100 flex items-center gap-1.5">
                       <span className="text-base">🍋</span>
                       <div>
-                        <div className="font-bold text-amber-900 text-[11px]">鲜黄柠檬</div>
-                        <div className="text-[10px] text-amber-700">清爽柠檬切片</div>
+                        <div className="font-bold text-amber-900 text-[11px]">鲜黄柠檬点缀</div>
+                        <div className="text-[10px] text-amber-700">边缘柠檬半片装饰</div>
                       </div>
                     </div>
                     <div className="bg-emerald-50/90 p-2 rounded-xl border border-emerald-100 flex items-center gap-1.5">
                       <span className="text-base">🍈</span>
                       <div>
-                        <div className="font-bold text-emerald-900 text-[11px]">清爽青柠</div>
-                        <div className="text-[10px] text-emerald-700">多汁青柠切片</div>
+                        <div className="font-bold text-emerald-900 text-[11px]">青柠薄荷切片</div>
+                        <div className="text-[10px] text-emerald-700">清爽青柠+鲜薄荷嫩叶</div>
+                      </div>
+                    </div>
+                    <div className="bg-rose-50/90 p-2 rounded-xl border border-rose-100 flex items-center gap-1.5">
+                      <span className="text-base">⚠️</span>
+                      <div>
+                        <div className="font-bold text-rose-900 text-[11px]">红色尖刺陷阱</div>
+                        <div className="text-[10px] text-rose-700">尖刺警示！踩中即失败</div>
                       </div>
                     </div>
                   </div>

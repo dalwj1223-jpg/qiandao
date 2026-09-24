@@ -2,7 +2,21 @@ export type GameState = 'START' | 'PLAYING' | 'PAUSED' | 'GAMEOVER';
 
 export type PlatformType = 'standard' | 'moving' | 'fragile' | 'disappearing' | 'trap';
 
-export type PlatformStyle = 'swimring' | 'lemon' | 'lime' | 'ice' | 'watermelon' | 'popsicle';
+export type PlatformStyle = 
+  | 'cucumber_long' 
+  | 'cucumber_trio' 
+  | 'cucumber_double' 
+  | 'cucumber_single' 
+  | 'cucumber_trap'
+  | 'blue_dock' 
+  | 'swimring' 
+  | 'lemon' 
+  | 'lime' 
+  | 'ice' 
+  | 'watermelon' 
+  | 'popsicle';
+
+export type PlatformGarnish = 'none' | 'lemon_left' | 'lemon_right' | 'lime_mint_left' | 'lime_mint_right' | 'double_lemon';
 
 export type ItemType = 'spring' | 'propeller' | 'rocket' | 'shield';
 
@@ -48,6 +62,10 @@ export interface Platform {
   height: number;
   type: PlatformType;
   style?: PlatformStyle;
+  garnish?: PlatformGarnish;
+  eyeLook?: 'left' | 'right' | 'center';
+  eyeOffsetX?: number;
+  sliceCount?: number;
   vx?: number;
   minX?: number;
   maxX?: number;

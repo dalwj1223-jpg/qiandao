@@ -6,235 +6,453 @@ import { Platform, Monster, Projectile, Particle, StarBackground } from '../type
  * bubbles, tropical vibes, and dangerous red trap blocks.
  */
 
-// Draw Summer Resort Water Park Background
+// Draw Fresh Cucumber & Gingham Plaid Map (Frame 2117907135 Image 1 Theme)
 export function drawBackground(
   ctx: CanvasRenderingContext2D,
   width: number,
   height: number,
   cameraY: number,
-  bubbles: StarBackground[],
+  dewDrops: StarBackground[],
   timeMs: number
 ) {
-  // 1. Sky & Swimming Pool Water Gradient
+  ctx.save();
+
+  // 1. Warm Sunny Pastel Lime & Cream Tablecloth Gradient (Image 1 Palette)
   const bgGrad = ctx.createLinearGradient(0, 0, 0, height);
-  bgGrad.addColorStop(0, '#38BDF8'); // Vibrant sunny sky blue
-  bgGrad.addColorStop(0.35, '#60A5FA'); // Sky mid
-  bgGrad.addColorStop(0.7, '#0EA5E9'); // Surface azure water
-  bgGrad.addColorStop(1, '#0284C7'); // Deep turquoise pool water
+  bgGrad.addColorStop(0, '#EAF5CE'); // Sun-drenched warm chartreuse top
+  bgGrad.addColorStop(0.2, '#F1F8D9');
+  bgGrad.addColorStop(0.5, '#F8FCEF'); // Crisp clean cream center
+  bgGrad.addColorStop(0.85, '#EFF7DB');
+  bgGrad.addColorStop(1, '#E6F3CE'); // Fresh pastel lime bottom
   ctx.fillStyle = bgGrad;
   ctx.fillRect(0, 0, width, height);
 
+  // 2. Gingham Checkered Plaid Pattern (Image 1 authentic green/white tablecloth)
   ctx.save();
+  const gridStep = 44;
+  // Parallax scroll on vertical axis as player climbs
+  const scrollY = (cameraY * 0.3) % gridStep;
 
-  // 2. Gentle Sunbeams (diagonal caustic light rays)
-  ctx.save();
-  ctx.globalAlpha = 0.08;
-  const rayGrad = ctx.createLinearGradient(0, 0, width, height);
-  rayGrad.addColorStop(0, '#FFFFFF');
-  rayGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
-  ctx.fillStyle = rayGrad;
-
-  for (let i = -100; i < width + 150; i += 75) {
-    ctx.beginPath();
-    ctx.moveTo(i, 0);
-    ctx.lineTo(i + 45, 0);
-    ctx.lineTo(i + 140, height);
-    ctx.lineTo(i + 80, height);
-    ctx.closePath();
-    ctx.fill();
+  // Vertical plaid stripes
+  ctx.fillStyle = 'rgba(180, 224, 130, 0.28)';
+  for (let x = 0; x < width; x += gridStep * 2) {
+    ctx.fillRect(x, 0, gridStep, height);
   }
-  ctx.restore();
 
-  // 3. Pool Water Ripples (caustics that scroll gently with camera)
-  ctx.save();
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
-  ctx.lineWidth = 1.5;
-  const rippleSpacing = 36;
-  const rippleOffset = (cameraY * 0.4) % rippleSpacing;
+  // Horizontal plaid stripes (intersections naturally blend darker, creating the gingham check!)
+  for (let y = scrollY - gridStep; y < height + gridStep; y += gridStep * 2) {
+    ctx.fillRect(0, y, width, gridStep);
+  }
 
-  for (let y = rippleOffset; y < height; y += rippleSpacing) {
-    ctx.beginPath();
-    for (let x = 0; x <= width; x += 30) {
-      const wave = Math.sin((x + timeMs * 0.04 + y) * 0.035) * 4;
-      if (x === 0) ctx.moveTo(x, y + wave);
-      else ctx.lineTo(x, y + wave);
+  // Intersections tactile shadow feel
+  ctx.fillStyle = 'rgba(146, 198, 92, 0.12)';
+  for (let x = 0; x < width; x += gridStep * 2) {
+    for (let y = scrollY - gridStep; y < height + gridStep; y += gridStep * 2) {
+      ctx.fillRect(x, y, gridStep, gridStep);
     }
-    ctx.stroke();
   }
   ctx.restore();
 
-  // 4. Distant Tropical Resort Deco (Palm fronds & Waterslide silhouettes)
-  drawDistantResortElements(ctx, width, height, cameraY);
+  // 3. Ambient Top Sunlight Glow (Image 1 top right sunbeam atmosphere)
+  ctx.save();
+  const sunGrad = ctx.createRadialGradient(width * 0.85, 40, 10, width * 0.85, 40, 260);
+  sunGrad.addColorStop(0, 'rgba(235, 252, 185, 0.45)');
+  sunGrad.addColorStop(0.6, 'rgba(235, 252, 185, 0.15)');
+  sunGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+  ctx.fillStyle = sunGrad;
+  ctx.fillRect(0, 0, width, height);
+  ctx.restore();
 
-  // 5. Floating Iridescent Water Bubbles (from Image 1 style)
-  bubbles.forEach((b) => {
-    const by = (b.y - cameraY * 0.35 - (timeMs * 0.03)) % height;
-    const finalY = by < 0 ? by + height : by;
-    const bx = b.x + Math.sin(timeMs * 0.002 + b.y) * 8;
-    const alpha = Math.min(0.75, b.alpha + 0.15);
-
-    drawSummerBubble(ctx, bx, finalY, b.size * 2.8, alpha);
+  // 4. Floating Ambient Dew Drops & Sun Motes
+  dewDrops.forEach((d) => {
+    const dy = (d.y - cameraY * 0.25 - (timeMs * 0.02)) % height;
+    const finalY = dy < 0 ? dy + height : dy;
+    const dx = d.x + Math.sin(timeMs * 0.0015 + d.y) * 6;
+    drawDewMote(ctx, dx, finalY, d.size * 1.8, d.alpha);
   });
+
+  // 5. Top-Right Sliced Fresh Cucumber Wheel with Sunny Glow (Image 1)
+  drawTopRightCucumberSlice(ctx, width, timeMs);
+
+  // 6. Bottom-Left Giant Sliced Cucumber & Fresh Coriander Leaves (Image 1)
+  drawBottomLeftCucumberAndLeaves(ctx, height, timeMs);
 
   ctx.restore();
 }
 
 /**
- * Draws parallax resort waterslide & palm silhouettes
+ * 🥒 Top-Right Sliced Fresh Cucumber Round (Image 1)
  */
-function drawDistantResortElements(
+function drawTopRightCucumberSlice(
   ctx: CanvasRenderingContext2D,
   width: number,
-  height: number,
-  cameraY: number
+  timeMs: number
 ) {
   ctx.save();
-  ctx.globalAlpha = 0.15;
+  const cx = width - 12;
+  const cy = 25;
+  const outerR = 68;
+  const rindThickness = 6;
+  const pithThickness = 5;
+  const pulpR = outerR - rindThickness - pithThickness;
 
-  // Waterslide spiral on the right
-  const slideY = 280 - (cameraY * 0.1) % 900;
-  if (slideY > -100 && slideY < height + 100) {
-    ctx.strokeStyle = '#F43F5E'; // Coral pink slide
-    ctx.lineWidth = 14;
-    ctx.lineCap = 'round';
+  ctx.translate(cx, cy);
+  const subtleSway = Math.sin(timeMs * 0.001) * 1.2;
+  ctx.rotate(0.1 + subtleSway * 0.008);
+
+  // Soft Sunny Glow behind slice
+  ctx.beginPath();
+  ctx.arc(0, 0, outerR + 14, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(215, 245, 145, 0.45)';
+  ctx.fill();
+
+  // Dark Green Bumpy Cucumber Rind
+  ctx.beginPath();
+  ctx.arc(0, 0, outerR, 0, Math.PI * 2);
+  const rindGrad = ctx.createRadialGradient(0, 0, outerR - rindThickness, 0, 0, outerR);
+  rindGrad.addColorStop(0, '#3A8A24');
+  rindGrad.addColorStop(0.7, '#2A6B18');
+  rindGrad.addColorStop(1, '#1A4D0E');
+  ctx.fillStyle = rindGrad;
+  ctx.fill();
+
+  // Outer rim subtle bumps
+  ctx.fillStyle = '#5CB53C';
+  for (let a = 0; a < Math.PI * 2; a += 0.35) {
+    const bx = Math.cos(a) * (outerR - 1.5);
+    const by = Math.sin(a) * (outerR - 1.5);
     ctx.beginPath();
-    ctx.arc(width - 20, slideY, 65, -0.4 * Math.PI, 0.6 * Math.PI);
-    ctx.stroke();
-
-    ctx.strokeStyle = '#FDE047'; // Sunshine yellow slide trim
-    ctx.lineWidth = 4;
-    ctx.stroke();
+    ctx.arc(bx, by, 1.2, 0, Math.PI * 2);
+    ctx.fill();
   }
 
-  // Palm tree top on the left
-  const palmY = 480 - (cameraY * 0.12) % 950;
-  if (palmY > -100 && palmY < height + 100) {
+  // Crisp Light Green/White Pith Layer
+  ctx.beginPath();
+  ctx.arc(0, 0, outerR - rindThickness, 0, Math.PI * 2);
+  ctx.fillStyle = '#E9F9D2';
+  ctx.fill();
+
+  // Juicy Watery Cucumber Pulp
+  ctx.beginPath();
+  ctx.arc(0, 0, pulpR, 0, Math.PI * 2);
+  const pulpGrad = ctx.createRadialGradient(0, 0, 8, 0, 0, pulpR);
+  pulpGrad.addColorStop(0, '#E8F7CE');
+  pulpGrad.addColorStop(0.5, '#DEF2BF');
+  pulpGrad.addColorStop(1, '#CAE8A2');
+  ctx.fillStyle = pulpGrad;
+  ctx.fill();
+
+  // Radial Water Vesicles & Seed Ring
+  const numSeeds = 10;
+  const seedRingR = pulpR * 0.58;
+  for (let i = 0; i < numSeeds; i++) {
+    const angle = (i * Math.PI * 2) / numSeeds;
+    const sx = Math.cos(angle) * seedRingR;
+    const sy = Math.sin(angle) * seedRingR;
+
+    ctx.beginPath();
+    ctx.ellipse(sx, sy, 5.5, 3.2, angle + Math.PI / 2, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(244, 253, 225, 0.85)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(175, 218, 125, 0.6)';
+    ctx.lineWidth = 0.6;
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.ellipse(sx, sy, 3.2, 1.5, angle + Math.PI / 2, 0, Math.PI * 2);
+    ctx.fillStyle = '#FFFEE3';
+    ctx.fill();
+  }
+
+  // Center core
+  ctx.beginPath();
+  ctx.arc(0, 0, 7, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(235, 248, 205, 0.9)';
+  ctx.fill();
+
+  ctx.restore();
+}
+
+/**
+ * 🥒 & 🌿 Bottom-Left Giant Sliced Cucumber & Fresh Coriander Leaves (Image 1)
+ */
+function drawBottomLeftCucumberAndLeaves(
+  ctx: CanvasRenderingContext2D,
+  height: number,
+  timeMs: number
+) {
+  ctx.save();
+  const cx = -15;
+  const cy = height - 15;
+  const outerR = 100;
+  const rindThickness = 8;
+  const pithThickness = 6;
+  const pulpR = outerR - rindThickness - pithThickness;
+
+  // 1. Fresh Green Foliage/Leaves behind and above cucumber slice
+  drawCorianderLeaves(ctx, 45, height - 95, timeMs);
+
+  // 2. Large Cucumber Slice in bottom left
+  ctx.save();
+  ctx.translate(cx, cy);
+
+  // Outer Dark Emerald Rind
+  ctx.beginPath();
+  ctx.arc(0, 0, outerR, 0, Math.PI * 2);
+  const rindGrad = ctx.createRadialGradient(0, 0, outerR - rindThickness, 0, 0, outerR);
+  rindGrad.addColorStop(0, '#327D1F');
+  rindGrad.addColorStop(0.7, '#236113');
+  rindGrad.addColorStop(1, '#154209');
+  ctx.fillStyle = rindGrad;
+  ctx.fill();
+
+  // Bumpy texture
+  ctx.fillStyle = '#52AB34';
+  for (let a = 0; a < Math.PI * 2; a += 0.28) {
+    const bx = Math.cos(a) * (outerR - 2);
+    const by = Math.sin(a) * (outerR - 2);
+    ctx.beginPath();
+    ctx.arc(bx, by, 1.6, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Pale crispy pith layer
+  ctx.beginPath();
+  ctx.arc(0, 0, outerR - rindThickness, 0, Math.PI * 2);
+  ctx.fillStyle = '#E8F8CE';
+  ctx.fill();
+
+  // Juicy Cucumber Pulp
+  ctx.beginPath();
+  ctx.arc(0, 0, pulpR, 0, Math.PI * 2);
+  const pulpGrad = ctx.createRadialGradient(0, 0, 12, 0, 0, pulpR);
+  pulpGrad.addColorStop(0, '#EDFADB');
+  pulpGrad.addColorStop(0.5, '#DEF2BF');
+  pulpGrad.addColorStop(1, '#C7E89C');
+  ctx.fillStyle = pulpGrad;
+  ctx.fill();
+
+  // 3-Lobed Star Core (Botanical authentic cucumber cross-section seen in Image 1)
+  const numLobes = 3;
+  for (let l = 0; l < numLobes; l++) {
+    const baseAngle = (l * Math.PI * 2) / numLobes - Math.PI / 6;
+
     ctx.save();
-    ctx.translate(15, palmY);
-    ctx.fillStyle = '#059669';
-    for (let angle = -1.2; angle <= 0.8; angle += 0.5) {
-      ctx.save();
-      ctx.rotate(angle);
+    ctx.rotate(baseAngle);
+
+    ctx.beginPath();
+    ctx.ellipse(32, 0, 26, 15, 0, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(245, 254, 230, 0.7)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(168, 215, 114, 0.55)';
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+
+    for (let s = -2; s <= 2; s++) {
+      const sx = 28 + Math.abs(s) * 3.5;
+      const sy = s * 6;
       ctx.beginPath();
-      ctx.ellipse(25, 0, 30, 8, 0, 0, Math.PI * 2);
+      ctx.ellipse(sx, sy, 4.5, 2, s * 0.15, 0, Math.PI * 2);
+      ctx.fillStyle = '#FFFEE6';
       ctx.fill();
-      ctx.restore();
+      ctx.strokeStyle = 'rgba(180, 222, 130, 0.6)';
+      ctx.lineWidth = 0.5;
+      ctx.stroke();
     }
     ctx.restore();
   }
 
+  // Central core star
+  ctx.beginPath();
+  ctx.arc(0, 0, 10, 0, Math.PI * 2);
+  ctx.fillStyle = '#EDFADB';
+  ctx.fill();
+
+  ctx.restore();
+
   ctx.restore();
 }
 
 /**
- * Draws an iridescent soap bubble (Image 1 aesthetic)
+ * 🌿 Lush Green Coriander / Herb Leaves (Image 1 bottom left)
  */
-function drawSummerBubble(
+function drawCorianderLeaves(
   ctx: CanvasRenderingContext2D,
   x: number,
   y: number,
-  radius: number,
+  timeMs: number
+) {
+  ctx.save();
+  const sway = Math.sin(timeMs * 0.0012) * 1.5;
+  ctx.translate(x, y + sway);
+
+  // Main Large Leaf pointing up-right
+  ctx.save();
+  ctx.rotate(-0.35);
+  drawLeafBlade(ctx, 42, 24, '#387F25', '#245C15');
+  ctx.restore();
+
+  // Secondary Leaf pointing more up
+  ctx.save();
+  ctx.translate(-18, 16);
+  ctx.rotate(-0.75);
+  drawLeafBlade(ctx, 36, 20, '#42932C', '#286818');
+  ctx.restore();
+
+  // Small Leaf pointing right
+  ctx.save();
+  ctx.translate(14, 25);
+  ctx.rotate(0.2);
+  drawLeafBlade(ctx, 28, 16, '#4EAA35', '#2E781D');
+  ctx.restore();
+
+  ctx.restore();
+}
+
+/**
+ * Helper to draw a delicate herb leaf blade with veins
+ */
+function drawLeafBlade(
+  ctx: CanvasRenderingContext2D,
+  len: number,
+  w: number,
+  fillColor: string,
+  veinColor: string
+) {
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.bezierCurveTo(len * 0.35, -w * 0.55, len * 0.75, -w * 0.45, len, 0);
+  ctx.bezierCurveTo(len * 0.75, w * 0.45, len * 0.35, w * 0.55, 0, 0);
+  ctx.closePath();
+
+  const leafGrad = ctx.createLinearGradient(0, -w / 2, len, w / 2);
+  leafGrad.addColorStop(0, fillColor);
+  leafGrad.addColorStop(1, '#5BBF3C');
+  ctx.fillStyle = leafGrad;
+  ctx.fill();
+
+  ctx.strokeStyle = veinColor;
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(len * 0.92, 0);
+  ctx.stroke();
+
+  ctx.lineWidth = 0.7;
+  for (let i = 1; i <= 3; i++) {
+    const vx = len * 0.22 * i;
+    ctx.beginPath();
+    ctx.moveTo(vx, 0);
+    ctx.lineTo(vx + 6, -w * 0.28);
+    ctx.moveTo(vx, 0);
+    ctx.lineTo(vx + 6, w * 0.28);
+    ctx.stroke();
+  }
+
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+  ctx.beginPath();
+  ctx.arc(len * 0.55, -2, 1.8, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+/**
+ * Ambient Dew Mote / Sparkling Droplet
+ */
+function drawDewMote(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  size: number,
   alpha: number
 ) {
   ctx.save();
-  ctx.globalAlpha = alpha;
-
-  // Bubble sphere gradient
-  const bubbleGrad = ctx.createRadialGradient(
-    x - radius * 0.3,
-    y - radius * 0.3,
-    radius * 0.2,
-    x,
-    y,
-    radius
-  );
-  bubbleGrad.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
-  bubbleGrad.addColorStop(0.6, 'rgba(165, 243, 252, 0.25)');
-  bubbleGrad.addColorStop(0.9, 'rgba(244, 114, 182, 0.3)');
-  bubbleGrad.addColorStop(1, 'rgba(56, 189, 248, 0.6)');
+  ctx.globalAlpha = Math.min(0.65, alpha);
 
   ctx.beginPath();
-  ctx.arc(x, y, radius, 0, Math.PI * 2);
-  ctx.fillStyle = bubbleGrad;
+  ctx.arc(x, y, size * 1.6, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(235, 252, 185, 0.4)';
   ctx.fill();
 
-  // White highlight arc
   ctx.beginPath();
-  ctx.arc(x - radius * 0.35, y - radius * 0.35, radius * 0.3, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+  ctx.arc(x, y, size, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.arc(x - size * 0.35, y - size * 0.35, size * 0.4, 0, Math.PI * 2);
+  ctx.fillStyle = '#FFFFFF';
   ctx.fill();
 
   ctx.restore();
 }
 
 /**
- * Draw Summer Platforms:
- * - standard: Crystal aqua ice float
- * - moving: Sunshine yellow & coral surfboard float
- * - fragile: Cracking frosted ice cube float
- * - disappearing: Shimmering bubble float
- * - trap: FATAL RED DANGER BLOCK (Spiky coral / hazard)
+ * 🥒 Draw Fresh Cucumber Platforms (Frame 2117907135 Image 1 Theme)
  */
 export function drawPlatform(ctx: CanvasRenderingContext2D, p: Platform, timeMs: number) {
   ctx.save();
 
   // Disappearing platform fading
   if (p.type === 'disappearing' && p.disappearAlpha !== undefined) {
-    ctx.globalAlpha = Math.max(0.12, p.disappearAlpha);
+    ctx.globalAlpha = Math.max(0.15, p.disappearAlpha);
   }
 
-  // Broken fragile ice platform falling
+  // Broken fragile cucumber platform falling
   if (p.type === 'fragile' && p.broken) {
     ctx.translate(p.x, p.y);
-    const drop = (p.breakProgress || 0) * 28;
-    const split = (p.breakProgress || 0) * 14;
+    const drop = (p.breakProgress || 0) * 30;
+    const split = (p.breakProgress || 0) * 16;
 
-    // Left ice piece
+    // Left half
     ctx.save();
     ctx.translate(-split, drop);
-    ctx.rotate(-((p.breakProgress || 0) * 0.4));
-    drawIceSlab(ctx, 0, 0, p.width / 2, p.height);
+    ctx.rotate(-((p.breakProgress || 0) * 0.45));
+    drawCucumberSlab(ctx, 0, 0, p.width / 2, p.height);
     ctx.restore();
 
-    // Right ice piece
+    // Right half
     ctx.save();
     ctx.translate(p.width / 2 + split, drop);
-    ctx.rotate((p.breakProgress || 0) * 0.4);
-    drawIceSlab(ctx, 0, 0, p.width / 2, p.height);
+    ctx.rotate((p.breakProgress || 0) * 0.45);
+    drawCucumberSlab(ctx, 0, 0, p.width / 2, p.height);
     ctx.restore();
 
     ctx.restore();
     return;
   }
 
-  // Draw platform based on type
+  // Draw platform based on type & style
   if (p.type === 'trap') {
-    // FATAL RED TRAP PLATFORM (Spiky hazard block)
-    drawTrapPlatform(ctx, p, timeMs);
+    // FATAL RED HAZARD BLOCK
+    drawCucumberTrapPlatform(ctx, p, timeMs);
   } else if (p.type === 'moving') {
-    // Sunshine yellow & coral surfboard float
-    drawSurfboardPlatform(ctx, p, timeMs);
+    // Moving Cucumber Float
+    drawCucumberMovingPlatform(ctx, p, timeMs);
   } else if (p.type === 'fragile') {
-    // Cracking frosted ice block
-    drawFragileIcePlatform(ctx, p);
+    // Cracking Fragile Cucumber Slice
+    drawCucumberFragilePlatform(ctx, p);
   } else if (p.type === 'disappearing') {
-    // Translucent giant bubble float
-    drawBubblePlatform(ctx, p, timeMs);
+    // Translucent Disappearing Cucumber Slice
+    drawCucumberDisappearingPlatform(ctx, p, timeMs);
   } else {
-    // Standard platforms with multiple summer styles (swimring, lemon, lime, ice, etc.)
-    const style = p.style || 'swimring';
-    if (style === 'swimring') {
-      drawSwimRingPlatform(ctx, p, timeMs);
-    } else if (style === 'lemon') {
-      drawLemonPlatform(ctx, p, timeMs);
-    } else if (style === 'lime') {
-      drawLimePlatform(ctx, p, timeMs);
-    } else if (style === 'popsicle') {
-      drawPopsiclePlatform(ctx, p, timeMs);
-    } else if (style === 'watermelon') {
-      drawWatermelonPlatform(ctx, p, timeMs);
-    } else {
+    // Standard Platforms: Variety of authentic Image 1 Cucumber styles & seasonal varieties
+    if (p.style === 'ice') {
       drawCrystalAquaPlatform(ctx, p);
+    } else if (p.style === 'swimring') {
+      drawSwimRingPlatform(ctx, p, timeMs);
+    } else if (p.style === 'lemon') {
+      drawLemonPlatform(ctx, p, timeMs);
+    } else if (p.style === 'lime') {
+      drawLimePlatform(ctx, p, timeMs);
+    } else if (p.style === 'cucumber_trio') {
+      drawCucumberTrioPlatform(ctx, p, timeMs);
+    } else if (p.style === 'cucumber_double') {
+      drawCucumberDoublePlatform(ctx, p, timeMs);
+    } else if (p.style === 'cucumber_single') {
+      drawCucumberSinglePlatform(ctx, p, timeMs);
+    } else {
+      // Default: Long Halved Cucumber Boat (Image 1 hallmark platform - 60% of blocks)
+      drawCucumberBoatPlatform(ctx, p, timeMs);
     }
   }
 
@@ -247,19 +465,407 @@ export function drawPlatform(ctx: CanvasRenderingContext2D, p: Platform, timeMs:
 }
 
 /**
- * ⚠️ FATAL RED TRAP PLATFORM:
- * Fiery crimson danger float with hazard warning stripes and sharp spikes!
+ * 🥒 Image 1 Signature Platform: Halved Cucumber Boat / Trough Platform
  */
-function drawTrapPlatform(ctx: CanvasRenderingContext2D, p: Platform, timeMs: number) {
+function drawCucumberBoatPlatform(
+  ctx: CanvasRenderingContext2D,
+  p: Platform,
+  timeMs: number
+) {
+  ctx.save();
+  const radius = Math.min(7, p.height / 2);
+
+  // 1. Soft Tablecloth Shadow
+  ctx.beginPath();
+  ctx.roundRect(p.x, p.y + 4, p.width, p.height, radius);
+  ctx.fillStyle = 'rgba(120, 160, 80, 0.28)';
+  ctx.fill();
+
+  // 2. Dark Emerald Cucumber Peel / Outer Rind
+  const rindGrad = ctx.createLinearGradient(p.x, p.y, p.x, p.y + p.height);
+  rindGrad.addColorStop(0, '#367E22');
+  rindGrad.addColorStop(0.5, '#266516');
+  rindGrad.addColorStop(1, '#18470C');
+
+  ctx.beginPath();
+  ctx.roundRect(p.x, p.y, p.width, p.height, radius);
+  ctx.fillStyle = rindGrad;
+  ctx.fill();
+
+  // Peel bumpy spots along bottom and sides
+  ctx.fillStyle = '#4EA830';
+  for (let bx = p.x + 8; bx < p.x + p.width - 6; bx += 14) {
+    ctx.beginPath();
+    ctx.arc(bx, p.y + p.height - 2.5, 1.3, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // 3. Crisp Light Pith Rim
+  const pithMargin = 2.2;
+  ctx.beginPath();
+  ctx.roundRect(
+    p.x + pithMargin,
+    p.y + pithMargin,
+    p.width - pithMargin * 2,
+    p.height - pithMargin * 2,
+    Math.max(1, radius - 1.5)
+  );
+  ctx.fillStyle = '#EBF8D5';
+  ctx.fill();
+
+  // 4. Juicy Watery Cucumber Pulp Center
+  const pulpMargin = 3.6;
+  const pulpW = p.width - pulpMargin * 2;
+  const pulpH = p.height - pulpMargin * 2;
+  ctx.beginPath();
+  ctx.roundRect(
+    p.x + pulpMargin,
+    p.y + pulpMargin,
+    pulpW,
+    pulpH,
+    Math.max(1, radius - 2.5)
+  );
+  const pulpGrad = ctx.createLinearGradient(p.x, p.y, p.x, p.y + p.height);
+  pulpGrad.addColorStop(0, '#E8F7CF');
+  pulpGrad.addColorStop(0.5, '#D5F2AA');
+  pulpGrad.addColorStop(1, '#C1E88F');
+  ctx.fillStyle = pulpGrad;
+  ctx.fill();
+
+  // 5. Embedded Center Cucumber Seeds Row (Image 1 botanical cross-section)
+  ctx.save();
+  ctx.beginPath();
+  ctx.roundRect(
+    p.x + pulpMargin,
+    p.y + pulpMargin,
+    pulpW,
+    pulpH,
+    Math.max(1, radius - 2.5)
+  );
+  ctx.clip();
+
+  const numSeeds = Math.max(3, Math.floor(pulpW / 12));
+  const seedStep = pulpW / (numSeeds + 1);
+  const seedY = p.y + p.height * 0.52;
+
+  for (let i = 1; i <= numSeeds; i++) {
+    const sx = p.x + pulpMargin + i * seedStep;
+    const tilt = (i % 2 === 0 ? 0.25 : -0.25);
+
+    // Water pocket around seed
+    ctx.beginPath();
+    ctx.ellipse(sx, seedY, 5.2, 2.8, tilt, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(242, 252, 222, 0.9)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(164, 214, 108, 0.6)';
+    ctx.lineWidth = 0.6;
+    ctx.stroke();
+
+    // Translucent seed core
+    ctx.beginPath();
+    ctx.ellipse(sx, seedY, 3.2, 1.4, tilt, 0, Math.PI * 2);
+    ctx.fillStyle = '#FFFEE3';
+    ctx.fill();
+  }
+  ctx.restore();
+
+  // 6. Top Specular Juice Gleam
+  ctx.beginPath();
+  ctx.moveTo(p.x + 8, p.y + 1.8);
+  ctx.lineTo(p.x + p.width - 8, p.y + 1.8);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
+  ctx.lineWidth = 1.3;
+  ctx.lineCap = 'round';
+  ctx.stroke();
+
+  // 7. Little glistening dewdrop in corner
+  drawDewDropGleam(ctx, p.x + p.width - 6, p.y + 2.5, 2);
+
+  // 8. Citrus & Mint Garnishes (User requested swim ring/lemon/lime styles)
+  const garnish = p.garnish || 'none';
+  if (garnish === 'lemon_right') {
+    drawCucumberLemonWedge(ctx, p.x + p.width - 10, p.y + 1, 'right');
+  } else if (garnish === 'lemon_left') {
+    drawCucumberLemonWedge(ctx, p.x + 10, p.y + 1, 'left');
+  } else if (garnish === 'lime_mint_left') {
+    drawCucumberLimeMintWedge(ctx, p.x + 12, p.y + 1, 'left');
+  } else if (garnish === 'lime_mint_right') {
+    drawCucumberLimeMintWedge(ctx, p.x + p.width - 12, p.y + 1, 'right');
+  } else if (garnish === 'double_lemon') {
+    drawCucumberLemonWedge(ctx, p.x + 10, p.y + 1, 'left');
+    drawCucumberLimeMintWedge(ctx, p.x + p.width - 12, p.y + 1, 'right');
+  }
+
+  ctx.restore();
+}
+
+/**
+ * 🥒🥒🥒 Cucumber Trio: 3 Overlapping Round Slices (Image 1)
+ */
+function drawCucumberTrioPlatform(
+  ctx: CanvasRenderingContext2D,
+  p: Platform,
+  timeMs: number
+) {
+  ctx.save();
+  const sliceR = p.height * 0.85;
+  const centerY = p.y + p.height / 2;
+
+  // Shadow for whole group
+  ctx.beginPath();
+  ctx.ellipse(p.x + p.width / 2, p.y + p.height + 2, p.width * 0.45, 4, 0, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(120, 160, 80, 0.25)';
+  ctx.fill();
+
+  const slice1X = p.x + sliceR + 2;
+  const slice3X = p.x + p.width - sliceR - 2;
+  const slice2X = (slice1X + slice3X) / 2;
+
+  // Draw 3 layered slices (Left, Right, and Center on top)
+  drawCucumberRoundSlice(ctx, slice1X, centerY, sliceR, -0.15);
+  drawCucumberRoundSlice(ctx, slice3X, centerY, sliceR, 0.2);
+  drawCucumberRoundSlice(ctx, slice2X, centerY - 1, sliceR * 1.05, 0.05);
+
+  ctx.restore();
+}
+
+/**
+ * 🥒🥒 Cucumber Double: 2 Overlapping Round Slices
+ */
+function drawCucumberDoublePlatform(
+  ctx: CanvasRenderingContext2D,
+  p: Platform,
+  timeMs: number
+) {
+  ctx.save();
+  const sliceR = p.height * 0.82;
+  const centerY = p.y + p.height / 2;
+
+  // Shadow
+  ctx.beginPath();
+  ctx.ellipse(p.x + p.width / 2, p.y + p.height + 2, p.width * 0.42, 4, 0, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(120, 160, 80, 0.25)';
+  ctx.fill();
+
+  const slice1X = p.x + sliceR + 3;
+  const slice2X = p.x + p.width - sliceR - 3;
+
+  drawCucumberRoundSlice(ctx, slice1X, centerY, sliceR, -0.12);
+  drawCucumberRoundSlice(ctx, slice2X, centerY, sliceR, 0.15);
+
+  ctx.restore();
+}
+
+/**
+ * 🥒 Cucumber Single: Wide Round Slice
+ */
+function drawCucumberSinglePlatform(
+  ctx: CanvasRenderingContext2D,
+  p: Platform,
+  timeMs: number
+) {
+  ctx.save();
+  const sliceR = Math.min(p.width * 0.48, p.height * 0.95);
+  const centerX = p.x + p.width / 2;
+  const centerY = p.y + p.height / 2;
+
+  // Shadow
+  ctx.beginPath();
+  ctx.ellipse(centerX, p.y + p.height + 2, sliceR * 0.9, 4, 0, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(120, 160, 80, 0.25)';
+  ctx.fill();
+
+  drawCucumberRoundSlice(ctx, centerX, centerY, sliceR, 0.1);
+
+  ctx.restore();
+}
+
+/**
+ * Helper to render an authentic circular cucumber slice wheel
+ */
+function drawCucumberRoundSlice(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  r: number,
+  rot: number
+) {
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(rot);
+
+  // Outer Rind
+  ctx.beginPath();
+  ctx.arc(0, 0, r, 0, Math.PI * 2);
+  const rindGrad = ctx.createRadialGradient(0, 0, r - 3, 0, 0, r);
+  rindGrad.addColorStop(0, '#367E22');
+  rindGrad.addColorStop(1, '#1A4A0D');
+  ctx.fillStyle = rindGrad;
+  ctx.fill();
+
+  // Bumpy outer rim
+  ctx.fillStyle = '#52B034';
+  for (let a = 0; a < Math.PI * 2; a += 0.7) {
+    const bx = Math.cos(a) * (r - 1);
+    const by = Math.sin(a) * (r - 1);
+    ctx.beginPath();
+    ctx.arc(bx, by, 0.9, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Pale pith
+  ctx.beginPath();
+  ctx.arc(0, 0, r - 2.2, 0, Math.PI * 2);
+  ctx.fillStyle = '#EBF8D5';
+  ctx.fill();
+
+  // Watery pulp
+  const pulpR = r - 3.8;
+  ctx.beginPath();
+  ctx.arc(0, 0, pulpR, 0, Math.PI * 2);
+  const pulpGrad = ctx.createRadialGradient(0, 0, 3, 0, 0, pulpR);
+  pulpGrad.addColorStop(0, '#E8F7CF');
+  pulpGrad.addColorStop(0.5, '#D5F2AA');
+  pulpGrad.addColorStop(1, '#C1E88F');
+  ctx.fillStyle = pulpGrad;
+  ctx.fill();
+
+  // 6 radial seeds
+  const seedCount = 6;
+  const seedRingR = pulpR * 0.58;
+  for (let i = 0; i < seedCount; i++) {
+    const a = (i * Math.PI * 2) / seedCount;
+    const sx = Math.cos(a) * seedRingR;
+    const sy = Math.sin(a) * seedRingR;
+
+    ctx.beginPath();
+    ctx.ellipse(sx, sy, 3.4, 1.8, a + Math.PI / 2, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(245, 253, 228, 0.85)';
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.ellipse(sx, sy, 2, 0.9, a + Math.PI / 2, 0, Math.PI * 2);
+    ctx.fillStyle = '#FFFEE3';
+    ctx.fill();
+  }
+
+  // Specular sheen
+  ctx.beginPath();
+  ctx.arc(0, 0, r - 1.5, -0.8, 0.2);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)';
+  ctx.lineWidth = 1.1;
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+/**
+ * Moving Cucumber Platform (with sparkling water drops and leaf)
+ */
+function drawCucumberMovingPlatform(
+  ctx: CanvasRenderingContext2D,
+  p: Platform,
+  timeMs: number
+) {
+  ctx.save();
+  // Water ripple trail
+  ctx.save();
+  ctx.strokeStyle = 'rgba(168, 218, 120, 0.45)';
+  ctx.lineWidth = 1.4;
+  const waveW = p.width + 10;
+  const waveX = p.x - 5;
+  const waveY = p.y + p.height + 2;
+  ctx.beginPath();
+  ctx.moveTo(waveX, waveY);
+  ctx.quadraticCurveTo(waveX + waveW * 0.5, waveY + Math.sin(timeMs * 0.008) * 2.5, waveX + waveW, waveY);
+  ctx.stroke();
+  ctx.restore();
+
+  drawCucumberBoatPlatform(ctx, p, timeMs);
+
+  // Little moving water shine
+  const shineX = p.x + 10 + (Math.sin(timeMs * 0.003) * 0.5 + 0.5) * (p.width - 24);
+  drawDewDropGleam(ctx, shineX, p.y + 2, 2.2);
+
+  ctx.restore();
+}
+
+/**
+ * Fragile Cucumber Platform (Crisp slice with hairline fracture cracks)
+ */
+function drawCucumberFragilePlatform(ctx: CanvasRenderingContext2D, p: Platform) {
+  ctx.save();
+  drawCucumberBoatPlatform(ctx, p, 0);
+
+  // Hairline crack fracture lines across cucumber
+  ctx.strokeStyle = '#FFFFFF';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(p.x + p.width * 0.42, p.y + 1);
+  ctx.lineTo(p.x + p.width * 0.48, p.y + p.height * 0.45);
+  ctx.lineTo(p.x + p.width * 0.44, p.y + p.height - 1);
+  ctx.moveTo(p.x + p.width * 0.48, p.y + p.height * 0.45);
+  ctx.lineTo(p.x + p.width * 0.56, p.y + p.height * 0.7);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+/**
+ * Disappearing Cucumber Platform (translucent pulse)
+ */
+function drawCucumberDisappearingPlatform(
+  ctx: CanvasRenderingContext2D,
+  p: Platform,
+  timeMs: number
+) {
+  ctx.save();
+  const pulse = Math.sin(timeMs * 0.006 + p.id) * 0.12;
+  ctx.globalAlpha = Math.max(0.22, (p.disappearAlpha ?? 0.8) + pulse);
+  drawCucumberBoatPlatform(ctx, p, timeMs);
+  ctx.restore();
+}
+
+/**
+ * Broken Cucumber Fragment Slab
+ */
+function drawCucumberSlab(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number
+) {
+  ctx.save();
+  const radius = 4;
+  ctx.beginPath();
+  ctx.roundRect(x, y, w, h, radius);
+  const slabGrad = ctx.createLinearGradient(x, y, x, y + h);
+  slabGrad.addColorStop(0, '#D5F2AA');
+  slabGrad.addColorStop(0.5, '#367E22');
+  slabGrad.addColorStop(1, '#1A4A0D');
+  ctx.fillStyle = slabGrad;
+  ctx.fill();
+  ctx.restore();
+}
+
+/**
+ * ⚠️ FATAL RED TRAP PLATFORM (Hazard block that ends run if stepped on)
+ */
+function drawCucumberTrapPlatform(
+  ctx: CanvasRenderingContext2D,
+  p: Platform,
+  timeMs: number
+) {
   ctx.save();
   const radius = 6;
 
   // Pulsing danger warning aura
   const pulse = Math.sin(timeMs * 0.01 + p.id) * 3;
   ctx.shadowColor = '#EF4444';
-  ctx.shadowBlur = 10 + pulse;
+  ctx.shadowBlur = 8 + pulse;
 
-  // Spikes on top (Red coral / sea urchin spikes)
+  // Red prickly chili spikes on top
   const spikeCount = 5;
   const spikeStep = p.width / spikeCount;
   ctx.fillStyle = '#DC2626';
@@ -306,12 +912,173 @@ function drawTrapPlatform(ctx: CanvasRenderingContext2D, p: Platform, timeMs: nu
   ctx.strokeStyle = '#7F1D1D';
   ctx.stroke();
 
-  // Danger warning symbol ⚠️ in center
+  // Danger warning ✕
   ctx.fillStyle = '#FFFFFF';
   ctx.font = 'bold 9px sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText('✕', p.x + p.width / 2, p.y + p.height / 2);
+
+  ctx.restore();
+}
+
+/**
+ * Dew Drop Specular Gleam
+ */
+function drawDewDropGleam(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  radius: number
+) {
+  ctx.beginPath();
+  ctx.arc(x, y, radius, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.arc(x - radius * 0.35, y - radius * 0.35, radius * 0.4, 0, Math.PI * 2);
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fill();
+}
+
+/**
+ * 🍋 Fresh Lemon Wedge garnish perched on cucumber boat
+ */
+function drawCucumberLemonWedge(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  facing: 'left' | 'right'
+) {
+  ctx.save();
+  ctx.translate(cx, cy);
+  const flip = facing === 'left' ? -1 : 1;
+  ctx.scale(flip, 1);
+  const r = 8.5;
+
+  // Shadow on cucumber peel
+  ctx.beginPath();
+  ctx.ellipse(0, 3, 8, 2.5, 0, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(20, 60, 10, 0.25)';
+  ctx.fill();
+
+  // Outer Golden Peel
+  ctx.beginPath();
+  ctx.arc(0, 0, r, Math.PI, 0);
+  ctx.closePath();
+  ctx.fillStyle = '#F59E0B';
+  ctx.fill();
+  ctx.strokeStyle = '#D97706';
+  ctx.lineWidth = 0.7;
+  ctx.stroke();
+
+  // Pale pith
+  ctx.beginPath();
+  ctx.arc(0, 0, r - 1.3, Math.PI, 0);
+  ctx.closePath();
+  ctx.fillStyle = '#FEFCE8';
+  ctx.fill();
+
+  // Juicy Lemon Pulp
+  ctx.beginPath();
+  ctx.arc(0, 0, r - 2.5, Math.PI, 0);
+  ctx.closePath();
+  ctx.fillStyle = '#FDE047';
+  ctx.fill();
+
+  // Segment lines
+  ctx.strokeStyle = '#FEFCE8';
+  ctx.lineWidth = 0.7;
+  for (let a = Math.PI * 1.15; a <= Math.PI * 1.85; a += Math.PI * 0.23) {
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(Math.cos(a) * (r - 2.5), Math.sin(a) * (r - 2.5));
+    ctx.stroke();
+  }
+
+  // Specular gleam
+  ctx.fillStyle = '#FFFFFF';
+  ctx.beginPath();
+  ctx.arc(-2, -4, 0.7, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+/**
+ * 🍈 Fresh Lime Wedge & Mint Leaf garnish perched on cucumber boat
+ */
+function drawCucumberLimeMintWedge(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  facing: 'left' | 'right'
+) {
+  ctx.save();
+  ctx.translate(cx, cy);
+  const flip = facing === 'left' ? -1 : 1;
+  ctx.scale(flip, 1);
+
+  // Mint Leaf behind lime
+  ctx.save();
+  ctx.translate(-3, -3);
+  ctx.rotate(-0.4);
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 5, 2.5, 0, 0, Math.PI * 2);
+  ctx.fillStyle = '#22C55E';
+  ctx.fill();
+  ctx.strokeStyle = '#15803D';
+  ctx.lineWidth = 0.5;
+  ctx.stroke();
+  ctx.restore();
+
+  // Shadow on cucumber peel
+  ctx.beginPath();
+  ctx.ellipse(0, 3, 8, 2.5, 0, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(20, 60, 10, 0.25)';
+  ctx.fill();
+
+  // Lime Wedge semicircle
+  const r = 8.5;
+  ctx.beginPath();
+  ctx.arc(0, 0, r, Math.PI, 0);
+  ctx.closePath();
+  ctx.fillStyle = '#10B981';
+  ctx.fill();
+  ctx.strokeStyle = '#059669';
+  ctx.lineWidth = 0.7;
+  ctx.stroke();
+
+  // Pale pith
+  ctx.beginPath();
+  ctx.arc(0, 0, r - 1.3, Math.PI, 0);
+  ctx.closePath();
+  ctx.fillStyle = '#ECFDF5';
+  ctx.fill();
+
+  // Pulp
+  ctx.beginPath();
+  ctx.arc(0, 0, r - 2.5, Math.PI, 0);
+  ctx.closePath();
+  ctx.fillStyle = '#34D399';
+  ctx.fill();
+
+  // Segments
+  ctx.strokeStyle = '#ECFDF5';
+  ctx.lineWidth = 0.7;
+  for (let a = Math.PI * 1.15; a <= Math.PI * 1.85; a += Math.PI * 0.23) {
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(Math.cos(a) * (r - 2.5), Math.sin(a) * (r - 2.5));
+    ctx.stroke();
+  }
+
+  // Specular gleam
+  ctx.fillStyle = '#FFFFFF';
+  ctx.beginPath();
+  ctx.arc(-2, -4, 0.7, 0, Math.PI * 2);
+  ctx.fill();
 
   ctx.restore();
 }
